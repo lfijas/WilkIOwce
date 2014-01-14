@@ -5,20 +5,24 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.View;
-import android.view.View.OnClickListener;
 
 public class Pawn extends View{
 	
 	private Paint mPaint;
+	private Paint mGlow;
 	private int mSquareWidth, mSquareHeight;
 	
 	private boolean mDragInProgress;
 	private boolean mHovering;
 	private boolean mAcceptsDrag;
+	
+	private static final int NUM_GLOW_STEPS = 10;
+	private static final int GREEN_STEP = 0x0000FF00 / NUM_GLOW_STEPS;
+	private static final int WHITE_STEP = 0x00FFFFFF / NUM_GLOW_STEPS;
+	private static final int ALPHA_STEP = 0xFF000000 / NUM_GLOW_STEPS;
 
 	public Pawn(Context context) {
 		super(context);
@@ -30,6 +34,11 @@ public class Pawn extends View{
 		mPaint.setAntiAlias(true);
 		mPaint.setStrokeWidth(6);
 		mPaint.setColor(Color.MAGENTA);
+		
+		mGlow = new Paint();
+		mGlow.setAntiAlias(true);
+		mGlow.setStrokeWidth(1);
+		mGlow.setStyle(Paint.Style.STROKE);
 		
 		setOnLongClickListener(new OnLongClickListener() {
 			
@@ -58,13 +67,25 @@ public class Pawn extends View{
 		final float cx = 30;//mSquareWidth/2;
 		final float cy = 30;//mSquareHeight/2;
 		
-		canvas.drawCircle(cx, cy, rad, mPaint);	
+		canvas.drawCircle(cx, cy, rad, mPaint);
+		
+		if (mDragInProgress && mAcceptsDrag) {
+			for (int i = NUM_GLOW_STEPS; i > 0; i--) {
+				int color = mHovering ? WHITE_STEP : GREEN_STEP;
+				color = i*(color | ALPHA_STEP);
+				mGlow.setColor(color);
+				canvas.drawCircle(cx, cy, rad, mGlow);
+				rad -= 0.5f;
+				canvas.drawCircle(cx, cy, rad, mGlow);
+				rad -= 0.5f;
+			}
+		}
 	}
 	
-	@Override
+	/*@Override
 	protected void  onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		setMeasuredDimension(widthMeasureSpec, heightMeasureSpec);
-	}
+	}*/
 	
 	
 	

@@ -18,12 +18,27 @@ public class Board extends Activity {
 	int selectedRow;
 	int selectedCol;
 	PawnMove[] legalMoves;
-	
+	BoardSquareView[] squares = new BoardSquareView[8];
+ 	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.board);
 		
-		wolf = new Pawn(Board.this);
+		RelativeLayout boardLayout = (RelativeLayout) findViewById(R.id.board_layout);
+		for( int col = 0; col < 8; col ++) {
+			//TEST
+			squares[col] = new BoardSquareView(Board.this);
+			squares[col].setBackgroundResource(R.drawable.black_square);
+			squares[col].setId(col);
+			boardLayout.addView(squares[col]);
+			if (col > 1) {
+				RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) squares[col].getLayoutParams();
+				params.addRule(RelativeLayout.RIGHT_OF, col - 1);
+				squares[col].setLayoutParams(params);
+			}
+		}
+		
+		/*wolf = new Pawn(Board.this);
 		wolf.setId(1);
 		RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.h8);
 		relativeLayout.addView(wolf);
@@ -35,14 +50,13 @@ public class Board extends Activity {
 		wolf.setLayoutParams(layoutParams);
 		
 		
-		wolf.invalidate();
+		wolf.invalidate();*/
 		
 		/*
 		 * Kod z Javy TODO sprawdizc jak to sie ma do tego co było napisane wcześniej
 		 */
 		gameState = new GameState();
 		doNewGame();
-		
 	}
 	
 	void doNewGame() {
@@ -54,6 +68,7 @@ public class Board extends Activity {
 		/*
 		 * TODO Odrysuj
 		 */
+
 	}
 	
 	private static class PawnMove {
