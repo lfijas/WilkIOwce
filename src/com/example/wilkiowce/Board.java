@@ -3,11 +3,13 @@ package com.example.wilkiowce;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 public class Board extends Activity {
 	
@@ -15,6 +17,8 @@ public class Board extends Activity {
 	public static final int WOLF = 1;
 	public static final int SHEEP = 2;
 	public static final int WHITE = 3;
+	
+	public Context mContext;
 	
 	private Pawn wolf;
 	
@@ -29,7 +33,7 @@ public class Board extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.board);
-		
+		mContext = Board.this;
 		RelativeLayout boardLayout = (RelativeLayout) findViewById(R.id.board_layout);
 		for (int row = 0; row < 8; row++){
 			for(int col = 0; col < 8; col++) {
@@ -82,12 +86,15 @@ public class Board extends Activity {
 				}
 				else {
 					if (gameState.board[row][col] == GameState.WOLF) {
+						Log.i("rysuj_wilka", "row: " + row + ", col: " + col);
 						squares[row][col].myDraw(Board.WOLF);
 					}
 					else if (gameState.board[row][col] == Board.SHEEP) {
+						Log.i("rysuj_owce", "row: " + row + ", col: " + col);
 						squares[row][col].myDraw(Board.SHEEP);
 					}
 					else {
+						Log.i("rysuj_czarne", "row: " + row + ", col: " + col);
 						squares[row][col].myDraw(Board.EMPTY);
 					}
 				}
@@ -124,7 +131,34 @@ public class Board extends Activity {
 			if (legalMoves[i].fromRow == selectedRow && legalMoves[i].fromCol == selectedCol 
 			&& legalMoves[i].toRow == row && legalMoves[i].toCol == col) {
 				doMakeMove(legalMoves[i]);
+				return;
 			}
+	}
+	
+	void doMakeMove(PawnMove move) {
+		boolean wolfWin = gameState.makeMove(move);
+		if (wolfWin) {
+			Log.i("toRow", "koniec");
+			Toast.makeText(Board.this, "Koniec gry wygrał wilk", Toast.LENGTH_LONG).show();
+		}
+		if (currentPlayer == GameState.SHEEP) {
+			currentPlayer = GameState.WOLF;
+		}
+		else if (currentPlayer == GameState.WOLF) {
+			currentPlayer = GameState.SHEEP;
+		}
+		
+		legalMoves = gameState.getLegalMoves(currentPlayer);
+		if (legalMoves == null) {
+			if (currentPlayer == GameState.WOLF) {
+				Toast.makeText(Board.this, "Koniec gry wygrały owce", Toast.LENGTH_LONG).show();
+			}
+			else {
+				Toast.makeText(Board.this, "Koniec gry wygrał wilk", Toast.LENGTH_LONG).show();
+			}
+		}
+		selectedRow = -1;
+		drawBoard();
 	}
 	
 	private static class PawnMove {
@@ -165,18 +199,21 @@ public class Board extends Activity {
 			return board[row][col];
 		}
 		
-		void makeMove(PawnMove pawnMove) {
-			makeMove(pawnMove.fromRow, pawnMove.fromCol, pawnMove.toRow, pawnMove.toCol);
+		boolean makeMove(PawnMove pawnMove) {
+			return makeMove(pawnMove.fromRow, pawnMove.fromCol, pawnMove.toRow, pawnMove.toCol);
 		}
 		
-		void makeMove(int fromRow, int fromCol, int toRow, int toCol) {
+		boolean makeMove(int fromRow, int fromCol, int toRow, int toCol) {
+			Log.i("ruchy", "toRow: " + toRow + ", " + board[toRow][toCol]);
 			board[toRow][toCol] = board[fromRow][fromCol];
-			board[fromRow][toCol] = EMPTY;
+			board[fromRow][fromCol] = EMPTY;
 			if (toRow == 0 && board[toRow][toCol] == WOLF) {
 				/*
 				 * TODO Koniec gry wilk wygrał
 				 */
-			}	
+				return true;
+			}
+			return false;
 		}
 		
 		PawnMove[] getLegalMoves(int player) {
@@ -190,8 +227,10 @@ public class Board extends Activity {
 					if (board[row][col] == player) {
 						if (canMove(player, row, col, row + 1, col + 1))
 							moves.add(new PawnMove(row, col, row + 1, col + 1));
-						if (canMove(player, row, col, row - 1, col + 1))
+						if (canMove(player, row, col, row + 1, col - 1))
 							moves.add(new PawnMove(row, col, row + 1, col - 1));
+						if (canMove(player, row, col, row - 1, col + 1))
+							moves.add(new PawnMove(row, col, row - 1, col + 1));
 						if (canMove(player, row, col, row - 1, col - 1))
 							moves.add(new PawnMove(row, col, row - 1, col - 1));
 					}

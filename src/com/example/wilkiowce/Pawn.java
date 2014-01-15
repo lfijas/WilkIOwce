@@ -80,6 +80,7 @@ public class Pawn extends View {
 			mPaint.setColor(Color.WHITE);
 		}
 		else {
+			Log.i("rysuj", "czrane");
 			mPaint.setColor(Color.BLACK);
 		}
 		
