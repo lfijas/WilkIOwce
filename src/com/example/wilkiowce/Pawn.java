@@ -5,11 +5,12 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.DragEvent;
 import android.view.View;
 
-public class Pawn extends View{
+public class Pawn extends View {
 	
 	private Paint mPaint;
 	private Paint mGlow;
@@ -18,6 +19,8 @@ public class Pawn extends View{
 	private boolean mDragInProgress;
 	private boolean mHovering;
 	private boolean mAcceptsDrag;
+	
+	private int mPawnType;
 	
 	private static final int NUM_GLOW_STEPS = 10;
 	private static final int GREEN_STEP = 0x0000FF00 / NUM_GLOW_STEPS;
@@ -33,7 +36,7 @@ public class Pawn extends View{
 		mPaint = new Paint();
 		mPaint.setAntiAlias(true);
 		mPaint.setStrokeWidth(6);
-		mPaint.setColor(Color.MAGENTA);
+		//mPaint.setColor(Color.MAGENTA);
 		
 		mGlow = new Paint();
 		mGlow.setAntiAlias(true);
@@ -52,20 +55,33 @@ public class Pawn extends View{
 		});
 	}
 	
-	/*public void draw(Canvas canvas, int squareWidth, int squareHeight) {
+	public void draw(Canvas canvas, int squareWidth, int squareHeight, int pawnType) {
 		mSquareWidth = squareWidth;
 		mSquareHeight = squareHeight;
-		measure(mSquareWidth, mSquareHeight);
+		mPawnType = pawnType;
+		//measure(mSquareWidth, mSquareHeight);
 		onDraw(canvas);
-	}*/
+	}
 	
 	@Override
 	protected void onDraw(Canvas canvas) {
 		//float rad = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10, getResources().getDisplayMetrics());//10;getWidth();
 		
-		float rad = 30;//mSquareHeight/2.2f;
-		final float cx = 30;//mSquareWidth/2;
-		final float cy = 30;//mSquareHeight/2;
+		float rad = mSquareHeight/2.2f;
+		final float cx = mSquareWidth/2;
+		final float cy = mSquareHeight/2;
+		if (mPawnType == Board.WOLF) {
+			mPaint.setColor(Color.CYAN);
+		}
+		else if (mPawnType == Board.SHEEP) {
+			mPaint.setColor(Color.MAGENTA);
+		}
+		else if (mPawnType == Board.WHITE){
+			mPaint.setColor(Color.WHITE);
+		}
+		else {
+			mPaint.setColor(Color.BLACK);
+		}
 		
 		canvas.drawCircle(cx, cy, rad, mPaint);
 		

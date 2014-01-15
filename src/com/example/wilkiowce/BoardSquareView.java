@@ -2,23 +2,44 @@ package com.example.wilkiowce;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 
 public class BoardSquareView extends ImageView {
-	//private Pawn mPawn;
-	public BoardSquareView(Context context) {
+	private Pawn mPawn;
+	private int mPawnType;
+	
+	private Paint mPaint;
+	
+	private Context mContext;
+	private int mRow;
+	private int mCol;
+	
+	public BoardSquareView(Context context, int row, int col) {
 		super(context);
 		setClickable(true);
-	}
+		mContext = context;
+		mRow = row;
+		mCol = col;
+		mPawn = new Pawn(context);
+		setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				Log.i("klik", (Integer.toString(mPawnType)));
+				((Board) mContext).doClickSquare(mRow, mCol);
+			}
+		});
+		}
 	
 	public BoardSquareView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 		setClickable(true);
+		//mPawn = new Pawn(context, attrs);
 		//RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.board_layout);
 		
 		//mPawn = new Pawn(context, attrs);
@@ -34,14 +55,19 @@ public class BoardSquareView extends ImageView {
 			}
 		});*/
 	}
+	public void myDraw(int pawnType) {
+		mPawnType= pawnType;
+		invalidate();
+	}
 	
 	protected void onDraw(Canvas canvas) {
 		Log.i("lukasz", "lukasz");
 		super.onDraw(canvas);
+		
 		int width = getWidth();
 		int height = getHeight();
-		/*if (((View) getParent()).getId() == R.id.h8) {
-			mPawn.draw(canvas, width, height);
-		}*/
+		//if (((View) getParent()).getId() == R.id.h8) {
+			mPawn.draw(canvas, width, height, mPawnType);
+		//}*/
 	}
 }

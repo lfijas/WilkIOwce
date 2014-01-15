@@ -10,6 +10,12 @@ import android.view.View.OnClickListener;
 import android.widget.RelativeLayout;
 
 public class Board extends Activity {
+	
+	public static final int EMPTY = 0;
+	public static final int WOLF = 1;
+	public static final int SHEEP = 2;
+	public static final int WHITE = 3;
+	
 	private Pawn wolf;
 	
 	GameState gameState;
@@ -18,23 +24,32 @@ public class Board extends Activity {
 	int selectedRow;
 	int selectedCol;
 	PawnMove[] legalMoves;
-	BoardSquareView[] squares = new BoardSquareView[8];
+	BoardSquareView[][] squares = new BoardSquareView[8][8];
  	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.board);
 		
 		RelativeLayout boardLayout = (RelativeLayout) findViewById(R.id.board_layout);
-		for( int col = 0; col < 8; col ++) {
-			//TEST
-			squares[col] = new BoardSquareView(Board.this);
-			squares[col].setBackgroundResource(R.drawable.black_square);
-			squares[col].setId(col);
-			boardLayout.addView(squares[col]);
-			if (col > 1) {
-				RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) squares[col].getLayoutParams();
-				params.addRule(RelativeLayout.RIGHT_OF, col - 1);
-				squares[col].setLayoutParams(params);
+		for (int row = 0; row < 8; row++){
+			for(int col = 0; col < 8; col++) {
+				squares[row][col] = new BoardSquareView(Board.this, row, col);
+				squares[row][col].setBackgroundResource(R.drawable.black_square);
+				if (col % 2 == row % 2) {
+					squares[row][col].setBackgroundResource(R.drawable.white_square);
+				}
+				squares[row][col].setId(100 * row + 10 * col + 1);
+				boardLayout.addView(squares[row][col]);
+				if (col > 0) {
+					RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) squares[row][col].getLayoutParams();
+					params.addRule(RelativeLayout.RIGHT_OF, 100 * row + 10 * (col - 1) + 1);
+					squares[row][col].setLayoutParams(params);
+				}
+				if (row > 0) {
+					RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) squares[row][col].getLayoutParams();
+					params.addRule(RelativeLayout.BELOW, 100 * (row - 1) + 10 * col + 1);
+					squares[row][col].setLayoutParams(params);
+				}
 			}
 		}
 		
@@ -59,6 +74,27 @@ public class Board extends Activity {
 		doNewGame();
 	}
 	
+	void drawBoard() {
+		for (int row = 0; row < 8; row++) {
+			for (int col = 0; col < 8; col++) {
+				if (row % 2 == col % 2) {
+					squares[row][col].myDraw(Board.WHITE);
+				}
+				else {
+					if (gameState.board[row][col] == GameState.WOLF) {
+						squares[row][col].myDraw(Board.WOLF);
+					}
+					else if (gameState.board[row][col] == Board.SHEEP) {
+						squares[row][col].myDraw(Board.SHEEP);
+					}
+					else {
+						squares[row][col].myDraw(Board.EMPTY);
+					}
+				}
+			}
+		}
+	}
+	
 	void doNewGame() {
 		gameState.setUpGame();
 		currentPlayer = GameState.WOLF;
@@ -68,7 +104,27 @@ public class Board extends Activity {
 		/*
 		 * TODO Odrysuj
 		 */
-
+		drawBoard();
+	}
+	
+	void doClickSquare(int row, int col) {
+		for (int i = 0; i < legalMoves.length; i ++) {
+			if (legalMoves[i].fromRow == row && legalMoves[i].fromCol == col) {
+				selectedRow = row;
+				selectedCol = col;
+				return;
+			}
+		}
+		
+		if (selectedRow < 0) {
+			return;
+		}
+		
+		for (int i = 0; i < legalMoves.length; i++) 
+			if (legalMoves[i].fromRow == selectedRow && legalMoves[i].fromCol == selectedCol 
+			&& legalMoves[i].toRow == row && legalMoves[i].toCol == col) {
+				doMakeMove(legalMoves[i]);
+			}
 	}
 	
 	private static class PawnMove {
