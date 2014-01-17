@@ -24,6 +24,8 @@ public class MainActivity extends Activity {
 	
 	public static final int MESSAGE_STATE_CHANGE = 1;
 	public static final int MESSAGE_DEVICE_NAME = 2;
+	public static final int MESSAGE_READ = 3;
+	public static final int MESSAGE_WRITE = 4;
 	
 	public static final String DEVICE_NAME = "device_name";
 	
@@ -70,7 +72,8 @@ public class MainActivity extends Activity {
 	public void onStart() {
 		super.onStart();
 		if (mBluetoothService == null) {
-			mBluetoothService = new BluetoothService(this, mHandler);		
+			//mBluetoothService = new BluetoothService(this, mHandler);
+			mBluetoothService = BluetoothService.getInstance(this, mHandler);
 			}
 	}
 	

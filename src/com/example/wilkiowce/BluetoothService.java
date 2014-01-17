@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
 
 public class BluetoothService {
@@ -31,10 +32,25 @@ public class BluetoothService {
 	public static final int STATE_CONNECTIG = 2;
 	public static final int STATE_CONNECTED = 3;
 	
-	public BluetoothService(Context context, Handler handler) {
+	private Board mBoard;
+	
+	private static BluetoothService _instance = null;
+	
+	public static BluetoothService getInstance(Context context, Handler handler) {
+		if (_instance == null) {
+			_instance = new BluetoothService(context, handler);
+		}
+		return _instance;
+	}
+	
+	private BluetoothService(Context context, Handler handler) {
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		mHandler = handler;
 		mState = STATE_NONE;
+	}
+	
+	public void setBoard(Board board) {
+		mBoard = board;
 	}
 	
 	private synchronized void setState(int state) {
@@ -122,6 +138,17 @@ public class BluetoothService {
 		setState(STATE_NONE);
 	}
 	
+	public void write(byte[] out) {
+		ConnectedThread connectedThread;
+		synchronized (this) {
+			if (mState != STATE_CONNECTED) {
+				return;
+			}
+			connectedThread = mConnectedThread;
+		}
+		connectedThread.write(out);
+	}
+	
 	private class AcceptThread extends Thread {
 		private final BluetoothServerSocket mServerSocket;
 		
@@ -149,12 +176,12 @@ public class BluetoothService {
 							clientConnected(socket, socket.getRemoteDevice());
 						case STATE_NONE:
 						case STATE_CONNECTED:
-							try {
-								socket.close();
+							/*try {
+								//socket.close();
 							}
 							catch (IOException e) {
 								
-							}
+							}*/
 							break;
 						}
 					}
@@ -163,12 +190,12 @@ public class BluetoothService {
 		}
 		
 		public void cancel() {
-			try {
-				mServerSocket.close();
+			/*try {
+				//mServerSocket.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
+			}*/
 		}
 	}
 	
@@ -195,13 +222,13 @@ public class BluetoothService {
 			try {
 				mSocket.connect();
 			} catch (IOException e) {
-				try {
-					mSocket.close();
+				/*try {
+					//mSocket.close();
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 					return;
-				}
+				}*/
 			}
 			
 			synchronized (BluetoothService.this) {
@@ -212,12 +239,12 @@ public class BluetoothService {
 		}
 		
 		public void cancel() {
-			try {
-				mSocket.close();
+			/*try {
+				//mSocket.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
+			}*/
 		}
 	}
 	private class ConnectedThread extends Thread {
@@ -227,18 +254,55 @@ public class BluetoothService {
 		
 		public ConnectedThread(BluetoothSocket socket) {
 			mBluetoothSocket = socket;
-			mInputStream = null;
-			mOutputStream = null;
+			InputStream tmpIn = null;
+			OutputStream tmpOut = null;
 			
-		}
-		
-		public void cancel() {
 			try {
-				mBluetoothSocket.close();
+				tmpIn = socket.getInputStream();
+				tmpOut = socket.getOutputStream();
 			}
 			catch (IOException e) {
 				e.printStackTrace();
 			}
+			mInputStream = tmpIn;
+			mOutputStream = tmpOut;	
+		}
+		
+		public void run() {
+			byte[] buffer = new byte[1024];
+			int bytes;
+			while (true) {
+				try {
+					bytes = mInputStream.read(buffer);
+					//mHandler.obtainMessage(MainActivity.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
+					Log.i("luke", "odebrano wiadomosc");
+					mBoard.mHandler.obtainMessage(MainActivity.MESSAGE_READ, bytes, -1, buffer).sendToTarget();
+				}
+					catch (IOException e) {
+						e.printStackTrace();
+					}
+			}
+		}
+		
+		public void write(byte[] buffer) {
+			try {
+				mOutputStream.write(buffer);
+				//mHandler.obtainMessage(MainActivity.MESSAGE_WRITE, -1, -1, buffer).sendToTarget();
+				Log.i("luke", "wyslano wiadomosc");
+				mBoard.mHandler.obtainMessage(MainActivity.MESSAGE_WRITE, -1, -1, buffer).sendToTarget();
+			}
+			catch (IOException e) {
+					e.printStackTrace();
+				}
+		}
+		
+		public void cancel() {
+			/*try {
+				//mBluetoothSocket.close();
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}*/
 		}
 	}
 

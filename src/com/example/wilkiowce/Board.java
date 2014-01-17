@@ -4,10 +4,11 @@ import java.util.ArrayList;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -19,6 +20,8 @@ public class Board extends Activity {
 	public static final int WHITE = 3;
 	
 	public Context mContext;
+	private BluetoothService mBluetoothService;
+	
 	
 	private Pawn wolf;
 	
@@ -33,6 +36,8 @@ public class Board extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.board);
+		mBluetoothService = BluetoothService.getInstance(Board.this, mHandler);
+		mBluetoothService.setBoard(this);
 		mContext = Board.this;
 		RelativeLayout boardLayout = (RelativeLayout) findViewById(R.id.board_layout);
 		for (int row = 0; row < 8; row++){
@@ -76,6 +81,28 @@ public class Board extends Activity {
 		 */
 		gameState = new GameState();
 		doNewGame();
+	}
+	
+	public final Handler mHandler = new Handler() {
+		@Override
+		public void handleMessage(Message msg) {
+			switch (msg.what) {
+			case MainActivity.MESSAGE_READ:
+				byte [] readBuf = (byte[]) msg.obj;
+				String readMessage = new String(readBuf, 0, msg.arg1);
+				Log.i("luke", readMessage);
+				Toast.makeText(getApplicationContext(), readMessage, Toast.LENGTH_SHORT).show();
+				break;
+			case MainActivity.MESSAGE_WRITE:
+				
+				break;
+				}
+		}
+	};
+	
+	private void sendMessage(String message) {
+		byte[] send = message.getBytes();
+		mBluetoothService.write(send);
 	}
 	
 	void drawBoard() {
@@ -158,6 +185,7 @@ public class Board extends Activity {
 			}
 		}
 		selectedRow = -1;
+		sendMessage("Hurra działa");
 		drawBoard();
 	}
 	
