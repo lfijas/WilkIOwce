@@ -92,6 +92,9 @@ public class Board extends Activity {
 				String readMessage = new String(readBuf, 0, msg.arg1);
 				Log.i("luke", readMessage);
 				Toast.makeText(getApplicationContext(), readMessage, Toast.LENGTH_SHORT).show();
+				String[] splitedStrings = readMessage.split(";");
+				PawnMove opponentMove = new PawnMove(Integer.parseInt(splitedStrings[0]), Integer.parseInt(splitedStrings[1]), Integer.parseInt(splitedStrings[2]), Integer.parseInt(splitedStrings[3]));
+				doMakeMove(opponentMove, true);
 				break;
 			case MainActivity.MESSAGE_WRITE:
 				
@@ -100,7 +103,8 @@ public class Board extends Activity {
 		}
 	};
 	
-	private void sendMessage(String message) {
+	private void sendMessage(PawnMove move) {
+		String message = move.fromRow + ";" + move.fromCol + ";" + move.toRow + ";" + move.toCol;
 		byte[] send = message.getBytes();
 		mBluetoothService.write(send);
 	}
@@ -157,12 +161,12 @@ public class Board extends Activity {
 		for (int i = 0; i < legalMoves.length; i++) 
 			if (legalMoves[i].fromRow == selectedRow && legalMoves[i].fromCol == selectedCol 
 			&& legalMoves[i].toRow == row && legalMoves[i].toCol == col) {
-				doMakeMove(legalMoves[i]);
+				doMakeMove(legalMoves[i], false);
 				return;
 			}
 	}
 	
-	void doMakeMove(PawnMove move) {
+	void doMakeMove(PawnMove move, boolean opponentMove) {
 		boolean wolfWin = gameState.makeMove(move);
 		if (wolfWin) {
 			Log.i("toRow", "koniec");
@@ -185,7 +189,9 @@ public class Board extends Activity {
 			}
 		}
 		selectedRow = -1;
-		sendMessage("Hurra działa");
+		if (!opponentMove) {
+			sendMessage(move);
+		}
 		drawBoard();
 	}
 	
