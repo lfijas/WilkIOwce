@@ -29,6 +29,8 @@ public class MainActivity extends Activity {
 	
 	public static final String DEVICE_NAME = "device_name";
 	
+	private int player;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -40,6 +42,7 @@ public class MainActivity extends Activity {
 		serverButton.setOnClickListener(new OnClickListener() { 			
 			@Override
 			public void onClick(View v) {
+				player = Board.SHEEP;
 				mBluetoothService.startServer();
 				//Toast.makeText(getApplicationContext(), "Server clicked!", Toast.LENGTH_LONG).show();
 			}
@@ -49,6 +52,7 @@ public class MainActivity extends Activity {
 		clientButton.setOnClickListener(new OnClickListener() {	
 			@Override
 			public void onClick(View v) {
+				player = Board.WOLF;
 				Intent serverIntent = new Intent(MainActivity.this, DiscoverActivity.class);
 				startActivityForResult(serverIntent, REQUEST_CONNECT_DEVICE);
 				
@@ -61,11 +65,11 @@ public class MainActivity extends Activity {
 		if (mBluetoothAdapter == null) {
 			return;
 		}
-		if (!mBluetoothAdapter.isEnabled()) {
+		//if (!mBluetoothAdapter.isEnabled()) {
 			Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
 			discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
 			startActivityForResult(discoverableIntent, REQUEST_ENABLE_BT);
-		}
+		//}
 	}
 
 	@Override
@@ -127,6 +131,9 @@ public class MainActivity extends Activity {
 				case BluetoothService.STATE_CONNECTED:
 					setStatus("Połączony z " + mConnectedDeviceName);
 					Intent intent = new Intent(MainActivity.this, Board.class);
+					Bundle bundle = new Bundle();
+					bundle.putInt("player", player);
+					intent.putExtras(bundle);
 					startActivity(intent);
 					break;
 				case BluetoothService.STATE_CONNECTIG:

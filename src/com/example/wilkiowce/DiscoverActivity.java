@@ -54,8 +54,8 @@ public class DiscoverActivity extends Activity {
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		
 		Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
-		if (pairedDevices.size() > 0) {
-			findViewById(R.id.title_paired_devices).setVisibility(View.VISIBLE);
+		findViewById(R.id.title_paired_devices).setVisibility(View.VISIBLE);
+		if (pairedDevices.size() > 0) {	
 			for(BluetoothDevice device : pairedDevices) {
 				mPairedDevicesArrayAdapter.add(device.getName() + "\n" + device.getAddress());
 			}
@@ -128,6 +128,12 @@ public class DiscoverActivity extends Activity {
 			if (BluetoothDevice.ACTION_FOUND.equals(action)) {
 				BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 				if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
+					String deviceName = device.getName() + "\n" + device.getAddress();
+					for (int i = 0; i < mNewDevicesArrayAdapter.getCount(); i++) {
+						if (mNewDevicesArrayAdapter.getItem(i).equals(deviceName)) {
+							return;
+						}
+					}
 					mNewDevicesArrayAdapter.add(device.getName() + "\n" + device.getAddress());
 				}
 				else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {

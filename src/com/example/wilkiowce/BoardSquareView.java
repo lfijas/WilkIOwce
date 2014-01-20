@@ -11,6 +11,7 @@ import android.widget.ImageView;
 public class BoardSquareView extends ImageView {
 	private Pawn mPawn;
 	private int mPawnType;
+	private boolean mSelected;
 	
 	private Paint mPaint;
 	
@@ -55,8 +56,9 @@ public class BoardSquareView extends ImageView {
 			}
 		});*/
 	}
-	public void myDraw(int pawnType) {
-		mPawnType= pawnType;
+	public void myDraw(int pawnType, boolean selected) {
+		mPawnType = pawnType;
+		mSelected = selected; 
 		invalidate();
 	}
 	
@@ -67,7 +69,7 @@ public class BoardSquareView extends ImageView {
 		int width = getWidth();
 		int height = getHeight();
 		//if (((View) getParent()).getId() == R.id.h8) {
-			mPawn.draw(canvas, width, height, mPawnType);
+			mPawn.draw(canvas, width, height, mPawnType, mSelected);
 		//}*/
 	}
 }

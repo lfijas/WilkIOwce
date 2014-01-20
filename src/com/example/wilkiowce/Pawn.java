@@ -19,6 +19,8 @@ public class Pawn extends View {
 	private boolean mDragInProgress;
 	private boolean mHovering;
 	private boolean mAcceptsDrag;
+	private boolean mSelected;
+	private Context mContext; 
 	
 	private int mPawnType;
 	
@@ -29,6 +31,7 @@ public class Pawn extends View {
 
 	public Pawn(Context context) {
 		super(context);
+		mContext = context;
 		
 		setFocusable(true);
 		setClickable(true);
@@ -55,10 +58,11 @@ public class Pawn extends View {
 		});
 	}
 	
-	public void draw(Canvas canvas, int squareWidth, int squareHeight, int pawnType) {
+	public void draw(Canvas canvas, int squareWidth, int squareHeight, int pawnType, boolean selected) {
 		mSquareWidth = squareWidth;
 		mSquareHeight = squareHeight;
 		mPawnType = pawnType;
+		mSelected = selected;
 		//measure(mSquareWidth, mSquareHeight);
 		onDraw(canvas);
 	}
@@ -71,22 +75,22 @@ public class Pawn extends View {
 		final float cx = mSquareWidth/2;
 		final float cy = mSquareHeight/2;
 		if (mPawnType == Board.WOLF) {
-			mPaint.setColor(Color.CYAN);
+			mPaint.setColor(Color.BLACK);
 		}
 		else if (mPawnType == Board.SHEEP) {
-			mPaint.setColor(Color.MAGENTA);
+			mPaint.setColor(Color.RED);
 		}
 		else if (mPawnType == Board.WHITE){
-			mPaint.setColor(Color.WHITE);
+			mPaint.setColor(mContext.getResources().getColor(R.color.light_square));
 		}
 		else {
 			Log.i("rysuj", "czrane");
-			mPaint.setColor(Color.BLACK);
+			mPaint.setColor(mContext.getResources().getColor(R.color.dark_square));
 		}
 		
 		canvas.drawCircle(cx, cy, rad, mPaint);
 		
-		if (mDragInProgress && mAcceptsDrag) {
+		if (mSelected) {
 			for (int i = NUM_GLOW_STEPS; i > 0; i--) {
 				int color = mHovering ? WHITE_STEP : GREEN_STEP;
 				color = i*(color | ALPHA_STEP);

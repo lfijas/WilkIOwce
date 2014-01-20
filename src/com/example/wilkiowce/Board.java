@@ -3,12 +3,15 @@ package com.example.wilkiowce;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -25,6 +28,8 @@ public class Board extends Activity {
 	
 	private Pawn wolf;
 	
+	private int player;
+	
 	GameState gameState;
 	boolean gameInProgress;
 	int currentPlayer;
@@ -39,6 +44,10 @@ public class Board extends Activity {
 		mBluetoothService = BluetoothService.getInstance(Board.this, mHandler);
 		mBluetoothService.setBoard(this);
 		mContext = Board.this;
+		Intent i = getIntent();
+		Bundle extras = i.getExtras();
+		player = extras.getInt("player");
+		
 		RelativeLayout boardLayout = (RelativeLayout) findViewById(R.id.board_layout);
 		for (int row = 0; row < 8; row++){
 			for(int col = 0; col < 8; col++) {
@@ -103,6 +112,19 @@ public class Board extends Activity {
 		}
 	};
 	
+	DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+		
+		@Override
+		public void onClick(DialogInterface dialog, int which) {
+			switch (which) {
+			case DialogInterface.BUTTON_NEUTRAL:
+				finish();
+				break;
+			}
+			
+		}
+	};
+	
 	private void sendMessage(PawnMove move) {
 		String message = move.fromRow + ";" + move.fromCol + ";" + move.toRow + ";" + move.toCol;
 		byte[] send = message.getBytes();
@@ -113,20 +135,30 @@ public class Board extends Activity {
 		for (int row = 0; row < 8; row++) {
 			for (int col = 0; col < 8; col++) {
 				if (row % 2 == col % 2) {
-					squares[row][col].myDraw(Board.WHITE);
+					squares[row][col].myDraw(Board.WHITE, false);
 				}
 				else {
 					if (gameState.board[row][col] == GameState.WOLF) {
 						Log.i("rysuj_wilka", "row: " + row + ", col: " + col);
-						squares[row][col].myDraw(Board.WOLF);
+						if (row == selectedRow && col == selectedCol) {
+							squares[row][col].myDraw(Board.WOLF, true);
+						}
+						else {
+							squares[row][col].myDraw(Board.WOLF, false);
+						}
 					}
 					else if (gameState.board[row][col] == Board.SHEEP) {
 						Log.i("rysuj_owce", "row: " + row + ", col: " + col);
-						squares[row][col].myDraw(Board.SHEEP);
+						if (row == selectedRow && col == selectedCol) {
+							squares[row][col].myDraw(Board.SHEEP, true);
+						}
+						else {
+							squares[row][col].myDraw(Board.SHEEP, false);
+						}
 					}
 					else {
 						Log.i("rysuj_czarne", "row: " + row + ", col: " + col);
-						squares[row][col].myDraw(Board.EMPTY);
+						squares[row][col].myDraw(Board.EMPTY, false);
 					}
 				}
 			}
@@ -146,10 +178,15 @@ public class Board extends Activity {
 	}
 	
 	void doClickSquare(int row, int col) {
+		if (currentPlayer != player) {
+			Toast.makeText(Board.this, "Teraz ruch przeciwnika", Toast.LENGTH_LONG).show();
+			return;
+		}
 		for (int i = 0; i < legalMoves.length; i ++) {
 			if (legalMoves[i].fromRow == row && legalMoves[i].fromCol == col) {
 				selectedRow = row;
 				selectedCol = col;
+				drawBoard();
 				return;
 			}
 		}
@@ -170,22 +207,34 @@ public class Board extends Activity {
 		boolean wolfWin = gameState.makeMove(move);
 		if (wolfWin) {
 			Log.i("toRow", "koniec");
-			Toast.makeText(Board.this, "Koniec gry wygrał wilk", Toast.LENGTH_LONG).show();
+			AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+			builder.setMessage("Koniec gry. Wygrał wilk.").setNeutralButton("OK", dialogClickListener).show();
+			//Toast.makeText(Board.this, "Koniec gry wygrał wilk", Toast.LENGTH_LONG).show();
 		}
 		if (currentPlayer == GameState.SHEEP) {
+			ImageView token = (ImageView) findViewById(R.id.player_token);
+			token.setBackgroundResource(R.drawable.wolf_token);
+			token.invalidate();
 			currentPlayer = GameState.WOLF;
 		}
 		else if (currentPlayer == GameState.WOLF) {
+			ImageView token = (ImageView) findViewById(R.id.player_token);
+			token.setBackgroundResource(R.drawable.sheep_token);
+			token.invalidate();
 			currentPlayer = GameState.SHEEP;
 		}
 		
 		legalMoves = gameState.getLegalMoves(currentPlayer);
 		if (legalMoves == null) {
 			if (currentPlayer == GameState.WOLF) {
-				Toast.makeText(Board.this, "Koniec gry wygrały owce", Toast.LENGTH_LONG).show();
+				AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+				builder.setMessage("Koniec gry. Wygrał owce.").setNeutralButton("OK", dialogClickListener).show();
+				//Toast.makeText(Board.this, "Koniec gry wygrały owce", Toast.LENGTH_LONG).show();
 			}
 			else {
-				Toast.makeText(Board.this, "Koniec gry wygrał wilk", Toast.LENGTH_LONG).show();
+				AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+				builder.setMessage("Koniec gry. Wygrał wilk.").setNeutralButton("OK", dialogClickListener).show();
+				//Toast.makeText(Board.this, "Koniec gry wygrał wilk", Toast.LENGTH_LONG).show();
 			}
 		}
 		selectedRow = -1;
@@ -219,7 +268,7 @@ public class Board extends Activity {
 		void setUpGame() {
 			for (int row = 0; row < 8; row++) {
 				for (int col = 0; col < 8; col++) {
-					if (row == 7 && col == 4)
+					if (row == 7 && col == 0)
 						board[row][col] = WOLF;
 					else if (row == 0 && (col % 2 == 1))
 						board[row][col] = SHEEP;

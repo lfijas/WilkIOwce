@@ -18,7 +18,8 @@
         android:theme="@style/AppTheme" >
         <activity
             android:name="com.example.wilkiowce.MainActivity"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -26,10 +27,12 @@
             </intent-filter>
         </activity>
         <activity 
-            android:name="com.example.wilkiowce.DiscoverActivity" >        
+            android:name="com.example.wilkiowce.DiscoverActivity"
+            android:screenOrientation="portrait" >        
         </activity>
         <activity 
-            android:name="com.example.wilkiowce.Board" >        
+            android:name="com.example.wilkiowce.Board"
+            android:screenOrientation="portrait" >        
         </activity>
     </application>
 	
