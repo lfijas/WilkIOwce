@@ -7,26 +7,42 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity" >
-
-    <LinearLayout
-        android:id="@+id/linearLayout1"
-        android:layout_width="wrap_content"
+ <RelativeLayout 
+     android:layout_width="300dp"
+     android:layout_height="match_parent">   
+    <TextView 
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:orientation="vertical" >
-        
-        <Button
+        android:text="Wilk i owce"
+        android:textSize=""
+        />
+    
+    <ImageView 
+        	android:id="@+id/background_image"
+        	android:layout_width="match_parent"
+        	android:layout_height="224dp"
+        	android:layout_centerVertical="true"
+        	android:background="@drawable/image"/>
+    
+     <Button
 	        android:id="@+id/serverButton"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
-	        android:text="Server" />
-
-	    <Button
+	        android:text="Owce"
+	        android:layout_above="@id/background_image" />
+   
+    <Button
 	        android:id="@+id/clientButton"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
-	        android:text="Client" />
-    </LinearLayout>
-
+	        android:text="Wilk"
+	        android:layout_below="@id/background_image" />
+    <Button
+	        android:id="@+id/infoButton"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:text="Pomoc"
+	        android:layout_alignParentBottom="true" />
+</RelativeLayout>  
 </RelativeLayout>

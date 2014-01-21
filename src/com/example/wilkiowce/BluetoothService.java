@@ -5,16 +5,19 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
 
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.widget.Toast;
 
 
 public class BluetoothService {
@@ -26,6 +29,7 @@ public class BluetoothService {
 	private ConnectThread mConnectThread;
 	private ConnectedThread mConnectedThread;
 	private final Handler mHandler;
+	private Context mContext;
 	private int mState;
 	public static final int STATE_NONE = 0;
 	public static final int STATE_LISTEN = 1;
@@ -47,6 +51,7 @@ public class BluetoothService {
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		mHandler = handler;
 		mState = STATE_NONE;
+		mContext = context;
 	}
 	
 	public void setBoard(Board board) {
@@ -149,6 +154,7 @@ public class BluetoothService {
 		connectedThread.write(out);
 	}
 	
+	
 	private class AcceptThread extends Thread {
 		private final BluetoothServerSocket mServerSocket;
 		
@@ -174,14 +180,15 @@ public class BluetoothService {
 						case STATE_LISTEN:
 						case STATE_CONNECTIG:
 							clientConnected(socket, socket.getRemoteDevice());
+							break;
 						case STATE_NONE:
 						case STATE_CONNECTED:
-							/*try {
-								//socket.close();
+							try {
+								socket.close();
 							}
 							catch (IOException e) {
 								
-							}*/
+							}
 							break;
 						}
 					}
@@ -190,12 +197,12 @@ public class BluetoothService {
 		}
 		
 		public void cancel() {
-			/*try {
-				//mServerSocket.close();
+			try {
+				mServerSocket.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}*/
+			}
 		}
 	}
 	
@@ -222,13 +229,16 @@ public class BluetoothService {
 			try {
 				mSocket.connect();
 			} catch (IOException e) {
-				/*try {
-					//mSocket.close();
+				try {
+					mSocket.close();
+					Message msg = mHandler.obtainMessage(MainActivity.SERVER_DOWN);
+					mHandler.sendMessage(msg);
+					return;
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 					return;
-				}*/
+				}
 			}
 			
 			synchronized (BluetoothService.this) {
@@ -239,12 +249,12 @@ public class BluetoothService {
 		}
 		
 		public void cancel() {
-			/*try {
-				//mSocket.close();
+			try {
+				mSocket.close();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}*/
+			}
 		}
 	}
 	private class ConnectedThread extends Thread {
@@ -297,12 +307,12 @@ public class BluetoothService {
 		}
 		
 		public void cancel() {
-			/*try {
-				//mBluetoothSocket.close();
+			try {
+				mBluetoothSocket.close();
 			}
 			catch (IOException e) {
 				e.printStackTrace();
-			}*/
+			}
 		}
 	}
 
