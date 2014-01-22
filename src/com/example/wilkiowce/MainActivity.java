@@ -2,8 +2,10 @@ package com.example.wilkiowce;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -66,6 +68,19 @@ public class MainActivity extends Activity {
 			}
 		});
 		
+		Button helpButton = (Button) findViewById(R.id.infoButton);
+		helpButton.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+				builder.setMessage("Aplikacja działa w trybie klient-serwer. Rolę serwera pełni gracz, który będzie " +
+						"grał owcami. Należy najpierw uruchomić serwer bluetooth, poprzez naciśnięcie przycisku Owce, a " +
+						"następnie na drugim urządeniu nacisnać przycisk Wilk i połączyć się z odpowiednim urządzeniem.").setNeutralButton("OK", dialogClickListener2).show();
+				
+			}
+		});
+		
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		if (mBluetoothAdapter == null) {
 			return;
@@ -83,6 +98,12 @@ public class MainActivity extends Activity {
 		/*Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
 		discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
 		startActivityForResult(discoverableIntent, REQUEST_ENABLE_BT);*/
+		Button serverBut = (Button) findViewById(R.id.serverButton);
+		serverBut.setEnabled(true);
+		Button clientBut = (Button) findViewById(R.id.clientButton);
+		clientBut.setEnabled(true);
+		Button helpBut = (Button) findViewById(R.id.infoButton);
+		helpBut.setEnabled(true);
 		if (mBluetoothService == null) {
 			//mBluetoothService = new BluetoothService(this, mHandler);
 			mBluetoothService = BluetoothService.getInstance(this, mHandler);
@@ -108,12 +129,43 @@ public class MainActivity extends Activity {
 	public void onActivityResult(int requestCode, int resultCode, Intent data)  {
 		switch(requestCode) {
 		case REQUEST_CONNECT_DEVICE:
-			if (resultCode == Activity.RESULT_OK) {
-				connectDevice(data);
+            if (resultCode == Activity.RESULT_OK) {
+                    connectDevice(data);
+            }
+            break;
+		case REQUEST_ENABLE_BT:
+			if (resultCode == Activity.RESULT_CANCELED) {
+				AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+				builder.setMessage("Aplikacja wymaga, aby urządzenie było wykrywalne dla innych urządzeń Bluetooth. Nie wyraziłeś na to zgody, więc zostanie ona zamknięta.").setNeutralButton("OK", dialogClickListener).show();
 			}
 			break;
 		}
 	}
+	
+	DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+		
+		@Override
+		public void onClick(DialogInterface dialog, int which) {
+			switch (which) {
+			case DialogInterface.BUTTON_NEUTRAL:
+				finish();
+				break;
+			}
+			
+		}
+	};
+	
+	DialogInterface.OnClickListener dialogClickListener2 = new DialogInterface.OnClickListener() {
+		
+		@Override
+		public void onClick(DialogInterface dialog, int which) {
+			switch (which) {
+			case DialogInterface.BUTTON_NEUTRAL:
+				break;
+			}
+			
+		}
+	};
 	
 	private void connectDevice(Intent data) {
 		String address = data.getExtras().getString(DiscoverActivity.EXTRA_DEVICE_ADDRESS);
@@ -121,15 +173,15 @@ public class MainActivity extends Activity {
 		mBluetoothService.connectClient(device);
 	}
 	
-	private final void setStatus(int resourceId) {
+	/*private final void setStatus(int resourceId) {
 		final ActionBar actionBar = getActionBar();
 		actionBar.setSubtitle(resourceId);
-	}
+	}*/
 	
-	private final void setStatus(CharSequence subTitle) {
+	/*private final void setStatus(CharSequence subTitle) {
 		final ActionBar actionBar = getActionBar();
 		actionBar.setSubtitle(subTitle);
-	}
+	}*/
 
 	private final Handler mHandler = new Handler() {
 		@Override
@@ -138,7 +190,7 @@ public class MainActivity extends Activity {
 			case MESSAGE_STATE_CHANGE:
 				switch (msg.arg1) {
 				case BluetoothService.STATE_CONNECTED:
-					setStatus("Połączony z " + mConnectedDeviceName);
+					//setStatus("Połączony z " + mConnectedDeviceName);
 					Intent intent = new Intent(MainActivity.this, Board.class);
 					Bundle bundle = new Bundle();
 					bundle.putInt("player", player);
@@ -146,14 +198,14 @@ public class MainActivity extends Activity {
 					startActivity(intent);
 					break;
 				case BluetoothService.STATE_CONNECTIG:
-					setStatus(R.string.connecting);
+					//setStatus(R.string.connecting);
 				}
 			case MESSAGE_DEVICE_NAME:
 				mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
-				Toast.makeText(getApplicationContext(), "Połączono z " + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
+				//Toast.makeText(getApplicationContext(), "Połączono z " + mConnectedDeviceName, Toast.LENGTH_SHORT).show();
 				break;
 			case SERVER_DOWN:
-				setStatus("Nieudana próba połącznia z serwerem");
+				//setStatus("Nieudana próba połącznia z serwerem");
 				Toast.makeText(getApplicationContext(), "Nie udało się połączyć z serwerem bluetooth. Upewnij się, że jest on włączony na wybranym urządzeniu i spróbuj ponownie.", Toast.LENGTH_LONG).show();	
 				break;
 			}

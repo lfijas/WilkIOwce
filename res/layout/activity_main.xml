@@ -6,43 +6,46 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".MainActivity" >
- <RelativeLayout 
-     android:layout_width="300dp"
-     android:layout_height="match_parent">   
+    tools:context=".MainActivity" >  
+<LinearLayout 
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    android:orientation="vertical">
     <TextView 
+        android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:text="Wilk i owce"
-        android:textSize=""
+        android:textSize="25dp"
+        android:textStyle="italic"
+        android:typeface="serif"
+        android:gravity="center_horizontal"
         />
-    
-    <ImageView 
-        	android:id="@+id/background_image"
-        	android:layout_width="match_parent"
-        	android:layout_height="224dp"
-        	android:layout_centerVertical="true"
-        	android:background="@drawable/image"/>
     
      <Button
 	        android:id="@+id/serverButton"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
 	        android:text="Owce"
-	        android:layout_above="@id/background_image" />
+	        android:layout_below="@id/title" />
+     
+     <ImageView 
+        	android:id="@+id/background_image"
+        	android:layout_height="200dp"
+        	android:layout_width="match_parent"
+        	android:background="@drawable/image"/>
    
     <Button
 	        android:id="@+id/clientButton"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
 	        android:text="Wilk"
-	        android:layout_below="@id/background_image" />
+ />
     <Button
 	        android:id="@+id/infoButton"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
-	        android:text="Pomoc"
-	        android:layout_alignParentBottom="true" />
-</RelativeLayout>  
+	        android:text="Pomoc" /> 
+</LinearLayout>
+
 </RelativeLayout>

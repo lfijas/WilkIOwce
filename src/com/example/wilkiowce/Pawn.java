@@ -24,7 +24,7 @@ public class Pawn extends View {
 	
 	private int mPawnType;
 	
-	private static final int NUM_GLOW_STEPS = 10;
+	private static final int NUM_GLOW_STEPS = 4;
 	private static final int GREEN_STEP = 0x0000FF00 / NUM_GLOW_STEPS;
 	private static final int WHITE_STEP = 0x00FFFFFF / NUM_GLOW_STEPS;
 	private static final int ALPHA_STEP = 0xFF000000 / NUM_GLOW_STEPS;

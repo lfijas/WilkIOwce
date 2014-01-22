@@ -7,7 +7,7 @@
     <TextView android:id="@+id/title_paired_devices"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Paired devices"
+        android:text="Sparowane urządzenia"
         android:visibility="gone"
         android:background="#666"
         android:textColor="#fff"
@@ -22,7 +22,7 @@
     <TextView android:id="@+id/title_new_devices"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Other devices"
+        android:text="inne urządzenia"
         android:visibility="gone"
         android:background="#666"
         android:textColor="#fff"
@@ -37,6 +37,6 @@
     <Button android:id="@+id/button_scan"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Scan"
+        android:text="Skanuj"
     />
 </LinearLayout>

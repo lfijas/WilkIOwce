@@ -40,13 +40,22 @@ public class Board extends Activity {
  	
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
 		setContentView(R.layout.board);
 		mBluetoothService = BluetoothService.getInstance(Board.this, mHandler);
 		mBluetoothService.setBoard(this);
 		mContext = Board.this;
 		Intent i = getIntent();
 		Bundle extras = i.getExtras();
+		if (extras == null) {
+			Toast.makeText(mContext, "Coś nie tak. Spróbuj się połączyć jeszcze raz.", Toast.LENGTH_SHORT).show();
+			finish();
+		}
 		player = extras.getInt("player");
+		if (player != Board.WOLF && player != Board.SHEEP) {
+			Toast.makeText(mContext, "Coś poszło nie tak. Spróbuj się połączyć jeszcze raz.", Toast.LENGTH_SHORT).show();
+			finish();
+		}
 		
 		RelativeLayout boardLayout = (RelativeLayout) findViewById(R.id.board_layout);
 		for (int row = 0; row < 8; row++){
@@ -92,6 +101,13 @@ public class Board extends Activity {
 		doNewGame();
 	}
 	
+	
+	public void onPause() {
+		super.onPause();
+		gameState = null;
+		finish();
+	}
+	
 	public final Handler mHandler = new Handler() {
 		@Override
 		public void handleMessage(Message msg) {
@@ -100,7 +116,7 @@ public class Board extends Activity {
 				byte [] readBuf = (byte[]) msg.obj;
 				String readMessage = new String(readBuf, 0, msg.arg1);
 				Log.i("luke", readMessage);
-				Toast.makeText(getApplicationContext(), readMessage, Toast.LENGTH_SHORT).show();
+				//Toast.makeText(getApplicationContext(), readMessage, Toast.LENGTH_SHORT).show();
 				String[] splitedStrings = readMessage.split(";");
 				PawnMove opponentMove = new PawnMove(Integer.parseInt(splitedStrings[0]), Integer.parseInt(splitedStrings[1]), Integer.parseInt(splitedStrings[2]), Integer.parseInt(splitedStrings[3]));
 				doMakeMove(opponentMove, true);
@@ -179,6 +195,8 @@ public class Board extends Activity {
 	
 	void doClickSquare(int row, int col) {
 		if (currentPlayer != player) {
+			Log.i("ania_curr", Integer.toString(currentPlayer));
+			Log.i("ania_play", Integer.toString(player));
 			Toast.makeText(Board.this, "Teraz ruch przeciwnika", Toast.LENGTH_LONG).show();
 			return;
 		}

@@ -91,7 +91,7 @@ public class DiscoverActivity extends Activity {
 	//Scanning in order to find new devices
 	private void doDiscovery() {
 		setProgressBarIndeterminate(true);
-		setTitle(R.string.scanning);
+		//setTitle(R.string.scanning);
 		findViewById(R.id.title_new_devices).setVisibility(View.VISIBLE);
 		if (mBluetoothAdapter.isDiscovering()) {
 			mBluetoothAdapter.cancelDiscovery();
@@ -138,7 +138,7 @@ public class DiscoverActivity extends Activity {
 				}
 				else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
 					setProgressBarIndeterminateVisibility(false);
-					setTitle(R.string.found_devices);
+					//setTitle(R.string.found_devices);
 					if (mNewDevicesArrayAdapter.getCount() == 0) {
 						String noDevicesFound = getResources().getText(R.string.no_devices_found).toString();
 						mNewDevicesArrayAdapter.add(noDevicesFound);
